@@ -1,0 +1,28 @@
+[{
+	"departure": "Vladivostok",
+	"destination": "Tel Aviv",
+	"carrier": "Aeroflot",
+	"flight_time": 8,
+	"price": 100
+},
+{
+	"departure": "Vladivostok",
+	"destination": "Tel Aviv",
+	"carrier": "S7 airlines"
+	"flight_time": 7,
+	"price": 150
+},
+{
+	"departure": "Vladivostok",
+	"destination": "Tel Aviv",
+	"carrier": "S7 airlines"
+	"flight_time": 9,
+	"price": 200
+},
+{
+	"departure": "Vladivostok",
+	"destination": "Tel Aviv",
+	"carrier": "S7 airlines"
+	"flight_time": 10,
+	"price": 300
+}]
