@@ -10,23 +10,24 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) throws IOException, ParseException {
-        String path = "C:\\Users\\duffy\\Desktop\\projects\\java\\test-task-mvn\\tickets.json";
+        String filepath = "C:\\Users\\duffy\\Desktop\\projects\\java\\test-task-mvn\\tickets.json";
 
-        JSONParser jsonParser = new JSONParser();
-        JSONArray tickets = (JSONArray) jsonParser.parse(new FileReader(path));
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(filepath));
+        JSONArray tickets = (JSONArray) jsonObject.get("tickets");
 
         Map<String, Integer> minFlightTimeMap = new HashMap<>();
         List<Integer> prices = new ArrayList<>();
 
-        for (Object ticket : tickets) {
-            JSONObject ticketJSON = (JSONObject) ticket;
-            String departure = (String) ticketJSON.get("departure");
-            String destination = (String) ticketJSON.get("destination");
-            String carrier = (String) ticketJSON.get("carrier");
-            int price = Integer.parseInt(ticketJSON.get("price").toString());
-            int flightTime = Integer.parseInt(ticketJSON.get("flight_time").toString());
+        for (Object ticketObj : tickets) {
+            JSONObject ticket = (JSONObject) ticketObj;
+            String origin = (String) ticket.get("origin");
+            String destination = (String) ticket.get("destination");
+            String carrier = (String) ticket.get("carrier");
+            int flightTime = calculateFlightTime((String) ticket.get("departure_time"), (String) ticket.get("arrival_time"));
+            int price = Integer.parseInt(ticket.get("price").toString());
 
-            if (departure.equals("Vladivostok") && destination.equals("Tel Aviv")) {
+            if (origin.equals("VVO") && destination.equals("TLV")) {
                 if (!minFlightTimeMap.containsKey(carrier)) {
                     minFlightTimeMap.put(carrier, flightTime);
                 }else {
@@ -39,10 +40,46 @@ public class Main {
 
         }
 
-        System.out.println(minFlightTimeMap.get("S7 airlines"));
-        System.out.println(minFlightTimeMap.get("Aeroflot"));
+        System.out.print("Минимальное время полета компании TK: ");
+        printMinFlightTime(minFlightTimeMap.get("TK"));
+        System.out.println("-----");
+
+        System.out.print("Минимальное время полета компании SU: ");
+        printMinFlightTime(minFlightTimeMap.get("SU"));
+        System.out.println("-----");
+
+        System.out.print("Минимальное время полета компании S7: ");
+        printMinFlightTime(minFlightTimeMap.get("S7"));
+        System.out.println("-----");
+
+        System.out.print("Минимальное время полета компании BA: ");
+        printMinFlightTime(minFlightTimeMap.get("BA"));
+        System.out.println("-----");
+
+        System.out.print("Разница между средним значением и медианой: ");
         System.out.println(calculateDifferenceAverageMedian(prices));
     }
+
+    public static int calculateFlightTime(String departureTime, String arrivalTime) {
+        String[] depTimeParts = departureTime.split(":");
+        String[] arrTimeParts = arrivalTime.split(":");
+
+        int depHour = Integer.parseInt(depTimeParts[0]);
+        int depMinute = Integer.parseInt(depTimeParts[1]);
+        int arrHour = Integer.parseInt(arrTimeParts[0]);
+        int arrMinute = Integer.parseInt(arrTimeParts[1]);
+
+        return (arrHour - depHour) * 60 + (arrMinute - depMinute);
+    }
+
+    public static void printMinFlightTime(int totalMinutes){
+        int hours = totalMinutes / 60;
+        int minutes = totalMinutes % 60;
+
+        String time = String.format("%02d:%02d", hours, minutes);
+        System.out.println(time);
+    }
+
 
     public static int calculateDifferenceAverageMedian(List<Integer> prices) {
         int sum = prices.stream().reduce(Integer::sum).get();
