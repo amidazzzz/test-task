@@ -85,6 +85,8 @@ public class Main {
         int sum = prices.stream().reduce(Integer::sum).get();
         int average = sum / prices.size();
 
+        Collections.sort(prices);
+
         int median = 0;
         if (prices.size() % 2 == 0) {
             median = (prices.get(prices.size() / 2 - 1) + prices.get(prices.size() / 2)) / 2;
