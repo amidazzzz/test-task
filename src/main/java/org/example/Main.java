@@ -5,11 +5,17 @@ import org.json.simple.parser.ParseException;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.Temporal;
 import java.util.*;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException, java.text.ParseException {
         String filepath = "C:\\Users\\duffy\\Desktop\\projects\\java\\test-task-mvn\\tickets.json";
 
         JSONParser parser = new JSONParser();
@@ -24,7 +30,10 @@ public class Main {
             String origin = (String) ticket.get("origin");
             String destination = (String) ticket.get("destination");
             String carrier = (String) ticket.get("carrier");
-            int flightTime = calculateFlightTime((String) ticket.get("departure_time"), (String) ticket.get("arrival_time"));
+            String arrivalDate = (String) ticket.get("arrival_date");
+            String departureDate = (String) ticket.get("departure_date");
+            int flightTime = calculateFlightTime((String) ticket.get("departure_time"), (String) ticket.get("arrival_time"),
+                    departureDate, arrivalDate);
             int price = Integer.parseInt(ticket.get("price").toString());
 
             if (origin.equals("VVO") && destination.equals("TLV")) {
@@ -60,16 +69,24 @@ public class Main {
         System.out.println(calculateDifferenceAverageMedian(prices));
     }
 
-    public static int calculateFlightTime(String departureTime, String arrivalTime) {
+    public static int calculateFlightTime(String departureTime, String arrivalTime, String departureDate, String arrivalDate) throws java.text.ParseException {
         String[] depTimeParts = departureTime.split(":");
         String[] arrTimeParts = arrivalTime.split(":");
 
-        int depHour = Integer.parseInt(depTimeParts[0]);
-        int depMinute = Integer.parseInt(depTimeParts[1]);
-        int arrHour = Integer.parseInt(arrTimeParts[0]);
-        int arrMinute = Integer.parseInt(arrTimeParts[1]);
+        String depTime = depTimeParts[0] + ":" + depTimeParts[1];
+        String arrTime = arrTimeParts[0] + ":" + arrTimeParts[1];
 
-        return (arrHour - depHour) * 60 + (arrMinute - depMinute);
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.ENGLISH);
+        Date arrival = format.parse(arrivalDate + " " + arrTime);
+        Date departure = format.parse(departureDate + " " + depTime);
+
+        Instant arrivalInstant = arrival.toInstant();
+        Instant departureInstant = departure.toInstant();
+
+        Duration duration = Duration.between(departureInstant, arrivalInstant);
+
+        return (int) duration.toMinutes();
+
     }
 
     public static void printMinFlightTime(int totalMinutes){
